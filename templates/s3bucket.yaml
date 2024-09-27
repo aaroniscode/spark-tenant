@@ -1,0 +1,6 @@
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: {{ include "spark-tenant.fullname" . }}
+spec:
+  name: {{ include "spark-tenant.fullname" . }}

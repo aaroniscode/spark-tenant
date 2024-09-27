@@ -1,0 +1,31 @@
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Role
+metadata:
+  name: {{ include "spark-tenant.fullname" . }}
+  labels:
+    {{- include "spark-tenant.labels" . | nindent 4 }}
+spec:
+  name: {{ include "spark-tenant.fullname" . }}
+  description: IAM Role for Spark Tenant Service Account
+  policyRefs:
+    - from:
+        name: {{ include "spark-tenant.fullname" . }}
+  assumeRolePolicyDocument: >
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Federated": "{{ .Values.cluster.oidcProviderArn }}"
+          },
+          "Action": "sts:AssumeRoleWithWebIdentity",
+          "Condition": {
+            "StringEquals": {
+              "{{ .Values.cluster.oidcProvider }}:aud": "sts.amazonaws.com",
+              "{{ .Values.cluster.oidcProvider }}:sub": "system:serviceaccount:{{ .Release.Namespace }}:{{ include "spark-tenant.serviceAccountName" . }}"
+            }
+          }
+        }
+      ]
+    }
